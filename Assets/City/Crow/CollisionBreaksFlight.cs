@@ -7,6 +7,7 @@ namespace City.Crow
     {
         [Inject] CrowController Crow { get; }
 
+        // ReSharper disable once UnusedParameter.Local
         void OnCollisionEnter2D(Collision2D other) => Crow.Crash();
     }
 }

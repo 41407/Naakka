@@ -8,7 +8,6 @@ namespace City.Crow
         [Inject] CrowController Crow { get; }
         [Inject] Rigidbody2D Rigidbody { get; }
         [Inject] SpriteRenderer SpriteRenderer { get; }
-        [Inject] CooldownTimer FlightCooldown { get; }
         [Inject] CooldownTimer WalkCooldown { get; }
 
         [SerializeField] Sprite sitSprite;
@@ -28,7 +27,7 @@ namespace City.Crow
 
         void OnEnable()
         {
-            FlightCooldown.StartTimer(3f);
+            WalkCooldown.Reset();
         }
 
         void FixedUpdate()
@@ -43,6 +42,7 @@ namespace City.Crow
                     SpriteRenderer.flipX = false;
                     Crow.Landed = false;
                     WalkCooldown.StartTimer(0.1f);
+                    Debug.Log("Nyt hypähdetää oikeelle");
                 }
 
                 if (Input.GetAxisRaw("Horizontal") < 0)
@@ -51,10 +51,11 @@ namespace City.Crow
                     SpriteRenderer.flipX = true;
                     Crow.Landed = false;
                     WalkCooldown.StartTimer(0.1f);
+                    Debug.Log("Nyt hypähdetää vasemmalle");
                 }
             }
 
-            if (Rigidbody.velocity.y < -1f)
+            if (Rigidbody.velocity.y < -1.9f)
             {
                 SpriteRenderer.sprite = DiveSprite;
             }
@@ -63,9 +64,8 @@ namespace City.Crow
                 SpriteRenderer.sprite = SitSprite;
             }
 
-            if (!FlightCooldown.IsOnCooldown && Input.GetAxisRaw("Vertical") != 0)
+            if (Input.GetAxisRaw("Vertical") != 0)
             {
-                Rigidbody.AddForce(new Vector2(1, 1) * HopForce, ForceMode2D.Impulse);
                 Crow.Fly();
             }
         }
