@@ -25,7 +25,9 @@ namespace City.Crow
             Rigidbody.gravityScale = GravityScale;
             var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
             var countersteeringCoefficient = GetCountersteeringCoefficient(input);
-            Rigidbody.AddForce(new Vector2(input.x * Force.x * countersteeringCoefficient, input.y * Force.y));
+            var heightCoefficient = Mathf.Clamp(5 - Rigidbody.position.y, 0, 1);
+            var velocityLiftCoefficient = Mathf.Clamp01(Mathf.Abs(Rigidbody.velocity.x));
+            Rigidbody.AddForce(new Vector2(input.x * Force.x * countersteeringCoefficient, input.y * Force.y * heightCoefficient * velocityLiftCoefficient));
             Rigidbody.AddForce(new Vector2(0, Mathf.Abs(Rigidbody.velocity.y / 5f)));
 
             Rigidbody.velocity = Vector2.ClampMagnitude(Rigidbody.velocity, maxVelocity);

@@ -74,7 +74,7 @@ namespace City.Crow
                 SpriteRenderer.sprite = SitSprite;
             }
 
-            if (Input.GetAxisRaw("Vertical") != 0)
+            if (Input.GetAxisRaw("Vertical") > 0)
             {
                 Crow.Fly();
             }
