@@ -45,7 +45,6 @@ namespace City.Crow
                     SpriteRenderer.flipX = false;
                     Crow.Landed = false;
                     WalkCooldown.StartTimer(0.1f);
-                    Debug.Log("Nyt hypähdetää oikeelle");
                 }
 
                 if (Input.GetAxisRaw("Horizontal") < 0)
@@ -54,7 +53,6 @@ namespace City.Crow
                     SpriteRenderer.flipX = true;
                     Crow.Landed = false;
                     WalkCooldown.StartTimer(0.1f);
-                    Debug.Log("Nyt hypähdetää vasemmalle");
                 }
             }
 
