@@ -24,7 +24,7 @@ namespace City.Crow
             if (!Timer.IsOnCooldown)
             {
                 action?.Invoke();
-                Timer.StartTimer();
+                Timer.StartTimer(0.1f);
             }
         }
 

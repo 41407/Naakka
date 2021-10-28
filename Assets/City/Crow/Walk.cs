@@ -11,6 +11,7 @@ namespace City.Crow
         [Inject] CooldownTimer WalkCooldown { get; }
 
         [SerializeField] Sprite sitSprite;
+        [SerializeField] Sprite stopSprite;
         [SerializeField] Sprite diveSprite;
 
         [SerializeField] Vector2 hopForce;
@@ -18,6 +19,7 @@ namespace City.Crow
         [SerializeField] float drag = 2;
 
         Sprite SitSprite => sitSprite;
+        Sprite StopSprite => stopSprite;
         Sprite DiveSprite => diveSprite;
 
         float GravityScale => gravityScale;
@@ -28,6 +30,7 @@ namespace City.Crow
         void OnEnable()
         {
             WalkCooldown.Reset();
+            SpriteRenderer.flipX = Rigidbody.velocity.x < 0;
         }
 
         void FixedUpdate()
@@ -57,7 +60,14 @@ namespace City.Crow
 
             if (Rigidbody.velocity.y < -1.9f)
             {
-                SpriteRenderer.sprite = DiveSprite;
+                if (Rigidbody.velocity.y < -2.5f)
+                {
+                    SpriteRenderer.sprite = DiveSprite;
+                }
+                else
+                {
+                    SpriteRenderer.sprite = StopSprite;
+                }
             }
             else
             {
