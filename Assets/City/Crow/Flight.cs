@@ -3,9 +3,10 @@ using Zenject;
 
 namespace City.Crow
 {
-    public class Fly : MonoBehaviour
+    public class Flight : MonoBehaviour
     {
         [Inject] CrowController Crow { get; }
+        [Inject] Player Player { get; }
         [Inject] Rigidbody2D Rigidbody { get; }
 
         [SerializeField] Vector2 force;
@@ -13,6 +14,7 @@ namespace City.Crow
         [SerializeField] float maxVelocity = 5;
         [SerializeField] GameObject sharpTurnSprite;
         [SerializeField] GameObject flySprite;
+        [SerializeField] float maximumHeight = 10f;
 
         GameObject SharpTurnSprite => sharpTurnSprite;
         GameObject FlySprite => flySprite;
@@ -22,13 +24,12 @@ namespace City.Crow
 
         void FixedUpdate()
         {
-            Rigidbody.gravityScale = GravityScale;
+            Rigidbody.AddForce(-Physics.gravity + Physics.gravity * GravityScale);
             var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
             var countersteeringCoefficient = GetCountersteeringCoefficient(input);
-            var heightCoefficient = Mathf.Clamp(5 - Rigidbody.position.y, 0, 1);
-            var velocityLiftCoefficient = Mathf.Clamp01(Mathf.Abs(Rigidbody.velocity.x));
-            Rigidbody.AddForce(new Vector2(input.x * Force.x * countersteeringCoefficient, input.y * Force.y * heightCoefficient * velocityLiftCoefficient));
-            Rigidbody.AddForce(new Vector2(0, Mathf.Abs(Rigidbody.velocity.y / 5f)));
+            var liftFromHeight = Mathf.Clamp(maximumHeight - Rigidbody.position.y, 0, 1);
+            var liftFromSpeed = Mathf.Clamp01(Mathf.Abs(Rigidbody.velocity.x / 3f));
+            Rigidbody.AddForce(new Vector2(input.x * Force.x * countersteeringCoefficient, input.y * Force.y * liftFromHeight * liftFromSpeed));
 
             Rigidbody.velocity = Vector2.ClampMagnitude(Rigidbody.velocity, maxVelocity);
 
@@ -45,7 +46,7 @@ namespace City.Crow
                 if (!FlySprite.activeSelf) FlySprite.SetActive(true);
             }
 
-            if (Input.GetAxisRaw("Vertical") < 0)
+            if (Player.WantsToLand())
             {
                 Crow.Land();
             }
@@ -55,10 +56,8 @@ namespace City.Crow
         {
             if (Mathf.Approximately(input.x, 0f)) return 1f;
             var countersteeringFactor = 1f;
-            if (SignOf(input.x) != SignOf(Rigidbody.velocity.x)) countersteeringFactor = 3f;
+            if (Math.SignOf(input.x) != Math.SignOf(Rigidbody.velocity.x)) countersteeringFactor = 3f;
             return countersteeringFactor;
         }
-
-        static int SignOf(float value) => value > 0 ? 1 : -1;
     }
 }

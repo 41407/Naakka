@@ -11,7 +11,8 @@ namespace City.Crow
         [SerializeField] GameObject fly;
         [SerializeField] GameObject walk;
 
-        public bool Landed { get; set; }
+        public bool HasLanded { get; set; }
+        public bool IsFalling => !HasLanded;
 
         bool IsFlying() => fly.activeSelf;
 

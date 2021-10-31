@@ -7,6 +7,7 @@ namespace City.Crow
     {
         public override void InstallBindings()
         {
+            Container.Bind<Player>().AsSingle();
             Container.Bind<Rigidbody2D>().FromComponentInParents().AsTransient();
             Container.Bind<SpriteRenderer>().FromComponentInParents().AsTransient();
             Container.Bind<CrowController>().FromComponentInParents().AsTransient();

@@ -5,77 +5,92 @@ namespace City.Crow
 {
     public class Walk : MonoBehaviour
     {
+        [Inject] Player Player { get; }
         [Inject] CrowController Crow { get; }
         [Inject] Rigidbody2D Rigidbody { get; }
         [Inject] SpriteRenderer SpriteRenderer { get; }
-        [Inject] CooldownTimer WalkCooldown { get; }
-
-        [SerializeField] Sprite sitSprite;
-        [SerializeField] Sprite stopSprite;
-        [SerializeField] Sprite diveSprite;
+        [Inject] CooldownTimer HopCooldown { get; }
 
         [SerializeField] Vector2 hopForce;
         [SerializeField] float gravityScale = 0.1f;
-        [SerializeField] float drag = 2;
-
-        Sprite SitSprite => sitSprite;
-        Sprite StopSprite => stopSprite;
-        Sprite DiveSprite => diveSprite;
 
         float GravityScale => gravityScale;
-        float Drag => drag;
-
         Vector2 HopForce => hopForce;
+        bool CanHop => !HopCooldown.IsOnCooldown;
 
         void OnEnable()
         {
-            WalkCooldown.Reset();
-            SpriteRenderer.flipX = Rigidbody.velocity.x < 0;
+            HopCooldown.Reset();
+            LookTowardsMovementDirection();
         }
+
+        void LookTowardsMovementDirection() => SpriteRenderer.flipX = Rigidbody.velocity.x < 0;
 
         void FixedUpdate()
         {
-            Rigidbody.gravityScale = GravityScale;
-            Rigidbody.drag = Drag;
-            if (Crow.Landed && !WalkCooldown.IsOnCooldown)
+            ApplyDownforce();
+            ApplyPlayerIntention();
+        }
+
+        void ApplyPlayerIntention()
+        {
+            if (Crow.HasLanded && CanHop)
             {
-                if (Input.GetAxisRaw("Horizontal") > 0)
+                if (Player.WantsToHopRight())
                 {
-                    Rigidbody.AddForce(new Vector2(1, 1) * HopForce, ForceMode2D.Impulse);
-                    SpriteRenderer.flipX = false;
-                    Crow.Landed = false;
-                    WalkCooldown.StartTimer(0.1f);
+                    HopRight();
+                    LookTowardsMovementDirection();
+                    StartHopCooldown();
                 }
 
-                if (Input.GetAxisRaw("Horizontal") < 0)
+                if (Player.WantsToHopLeft())
                 {
-                    Rigidbody.AddForce(new Vector2(-1, 1) * HopForce, ForceMode2D.Impulse);
-                    SpriteRenderer.flipX = true;
-                    Crow.Landed = false;
-                    WalkCooldown.StartTimer(0.1f);
+                    HopLeft();
+                    LookTowardsMovementDirection();
+                    StartHopCooldown();
+                }
+            }
+            else if (Crow.IsFalling)
+            {
+                if (PlayerIsCountersteering())
+                {
+                    ApplyCountersteeringForce();
                 }
             }
 
-            if (Rigidbody.velocity.y < -1.9f)
-            {
-                if (Rigidbody.velocity.y < -2.5f)
-                {
-                    SpriteRenderer.sprite = DiveSprite;
-                }
-                else
-                {
-                    SpriteRenderer.sprite = StopSprite;
-                }
-            }
-            else
-            {
-                SpriteRenderer.sprite = SitSprite;
-            }
+            if (Player.WantsToFly()) Crow.Fly();
+        }
 
-            if (Input.GetAxisRaw("Vertical") > 0)
-            {
-                Crow.Fly();
-            }
+        void ApplyCountersteeringForce()
+        {
+            Rigidbody.AddForce(new Vector2(-Mathf.Sign(Rigidbody.velocity.x) * 5f, 0));
+        }
+
+        bool PlayerIsCountersteering()
+        {
+            return Math.SignOf(Rigidbody.velocity.x) != Math.SignOf(Player.HorizontalInputAxis()) || Player.HorizontalInputAxis() == 0;
+        }
+
+        void ApplyDownforce()
+        {
+            Rigidbody.AddForce(Physics.gravity * GravityScale - Physics.gravity);
+        }
+
+        void HopLeft()
+        {
+            Rigidbody.AddForce(new Vector2(-1, 1) * HopForce, ForceMode2D.Impulse);
+            Crow.HasLanded = false;
+        }
+
+        void HopRight()
+        {
+            Rigidbody.AddForce(new Vector2(1, 1) * HopForce, ForceMode2D.Impulse);
+            Crow.HasLanded = false;
+        }
+
+        void StartHopCooldown()
+        {
+            HopCooldown.StartTimer(0.1f);
         }
     }
 }

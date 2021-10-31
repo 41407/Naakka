@@ -7,6 +7,6 @@ namespace City.Crow
     {
         [Inject] CrowController Crow { get; }
 
-        void OnTriggerStay2D(Collider2D other) => Crow.Landed = true;
+        void OnTriggerStay2D(Collider2D other) => Crow.HasLanded = true;
     }
 }
