@@ -8,6 +8,8 @@ namespace City.Crow
         public static float HorizontalInputAxis() => Input.GetAxisRaw("Horizontal");
         static float VerticalInputAxis() => Input.GetAxisRaw("Vertical");
 
+        public static Vector2 GetInput() => new Vector2(HorizontalInputAxis(), VerticalInputAxis());
+
         public static bool WantsToHopLeft() => HopInput(IsTowardsLeft);
         public static bool WantsToHopRight() => HopInput(IsTowardsRight);
         public static bool WantsToFly() => FlightInput(IsTowardsUp) && HopInput(Any);

@@ -1,4 +1,7 @@
-static internal class Math
+namespace City.Crow
 {
-    public static int SignOf(float value) => value > 0 ? 1 : -1;
+    internal static class Math
+    {
+        public static int SignOf(float value) => value > 0 ? 1 : -1;
+    }
 }

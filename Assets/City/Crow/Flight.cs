@@ -12,12 +12,12 @@ namespace City.Crow
         [SerializeField] Vector2 force;
         [SerializeField] float gravityScale = 0.1f;
         [SerializeField] float maxVelocity = 5;
-        [SerializeField] GameObject sharpTurnSprite;
-        [SerializeField] GameObject flySprite;
+        [SerializeField] GameObject sharpTurnView;
+        [SerializeField] GameObject flyView;
         [SerializeField] float maximumHeight = 10f;
 
-        GameObject SharpTurnSprite => sharpTurnSprite;
-        GameObject FlySprite => flySprite;
+        GameObject SharpTurnView => sharpTurnView;
+        GameObject FlyView => flyView;
 
         Vector2 Force => force;
         float GravityScale => gravityScale;
@@ -25,38 +25,64 @@ namespace City.Crow
         void FixedUpdate()
         {
             Rigidbody.AddForce(-Physics.gravity + Physics.gravity * GravityScale);
-            var input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            var input = Player.GetInput();
             var countersteeringCoefficient = GetCountersteeringCoefficient(input);
-            var liftFromHeight = Mathf.Clamp(maximumHeight - Rigidbody.position.y, 0, 1);
-            var liftFromSpeed = Mathf.Clamp01(Mathf.Abs(Rigidbody.velocity.x / 3f));
+            var liftFromHeight = GetLiftByHeight();
+            var liftFromSpeed = GetLiftFromSpeed();
+
             Rigidbody.AddForce(new Vector2(input.x * Force.x * countersteeringCoefficient, input.y * Force.y * liftFromHeight * liftFromSpeed));
 
-            Rigidbody.velocity = Vector2.ClampMagnitude(Rigidbody.velocity, maxVelocity);
+            LimitVelocity();
 
-            FlySprite.GetComponent<SpriteRenderer>().flipX = Rigidbody.velocity.x < 0;
-            SharpTurnSprite.GetComponent<SpriteRenderer>().flipX = Rigidbody.velocity.x > 0;
+            UpdateSprite(countersteeringCoefficient);
+
+            if (Player.WantsToLand()) Crow.Land();
+        }
+
+        void UpdateSprite(float countersteeringCoefficient)
+        {
+            FlyView.GetComponent<SpriteRenderer>().flipX = Rigidbody.velocity.x < 0;
+            SharpTurnView.GetComponent<SpriteRenderer>().flipX = Rigidbody.velocity.x > 0;
             if (countersteeringCoefficient > 1)
             {
-                if (FlySprite.activeSelf) FlySprite.SetActive(false);
-                if (!SharpTurnSprite.activeSelf) SharpTurnSprite.SetActive(true);
+                if (FlyView.activeSelf) FlyView.SetActive(false);
+                if (!SharpTurnView.activeSelf) SharpTurnView.SetActive(true);
             }
             else
             {
-                if (SharpTurnSprite.activeSelf) SharpTurnSprite.SetActive(false);
-                if (!FlySprite.activeSelf) FlySprite.SetActive(true);
+                if (SharpTurnView.activeSelf) SharpTurnView.SetActive(false);
+                if (!FlyView.activeSelf) FlyView.SetActive(true);
             }
+        }
 
-            if (Player.WantsToLand())
-            {
-                Crow.Land();
-            }
+        void LimitVelocity()
+        {
+            Rigidbody.velocity = Vector2.ClampMagnitude(Rigidbody.velocity, maxVelocity);
+        }
+
+        float GetLiftFromSpeed()
+        {
+            return Mathf.Clamp01(Mathf.Abs(Rigidbody.velocity.x / 3f));
+        }
+
+        float GetLiftByHeight()
+        {
+            return Mathf.Clamp(maximumHeight - Rigidbody.position.y, 0, 1);
         }
 
         float GetCountersteeringCoefficient(Vector2 input)
         {
-            if (Mathf.Approximately(input.x, 0f)) return 1f;
             var countersteeringFactor = 1f;
-            if (Math.SignOf(input.x) != Math.SignOf(Rigidbody.velocity.x)) countersteeringFactor = 3f;
+            if (Mathf.Approximately(input.x, 0f))
+            {
+                return countersteeringFactor;
+            }
+
+            if (Math.SignOf(input.x) != Math.SignOf(Rigidbody.velocity.x))
+            {
+                countersteeringFactor = 3f;
+            }
+
             return countersteeringFactor;
         }
     }
