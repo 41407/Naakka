@@ -15,7 +15,7 @@ TagManager:
   - Can fly through
   - Cannot fly through
   - Flying birb
-  - 
+  - Background
   - 
   - 
   - 
@@ -40,4 +40,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground
+    uniqueID: 2476599149
+    locked: 0
+  - name: Midground
+    uniqueID: 2309622885
+    locked: 0
+  - name: Background
+    uniqueID: 3632048685
     locked: 0
