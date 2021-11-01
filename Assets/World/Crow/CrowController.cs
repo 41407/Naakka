@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Zenject;
 
-namespace City.Crow
+namespace World.Crow
 {
     public class CrowController : MonoBehaviour
     {

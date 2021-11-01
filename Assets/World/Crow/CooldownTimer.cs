@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace City.Crow
+namespace World.Crow
 {
     public class CooldownTimer : MonoBehaviour
     {

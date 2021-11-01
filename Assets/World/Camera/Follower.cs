@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace City.Camera
+namespace World.Camera
 {
     public class Follower : MonoBehaviour
     {
